@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package api.review.v1;
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+option go_package = "review-service/api/review/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.review.v1";
+
+service Review {
+	//c端创建评价，包含订单ID、评分、评论内容等字段
+	rpc CreateReview(CreateReviewRequest) returns (CreateReviewReply) {
+		option (google.api.http) = {
+			post: "/v1/reviews"
+			body: "*"
+		};
+	};
+	//B端回复评价，包含评论ID、回复内容等字段
+	rpc ReplyReview(ReplyReviewRequest) returns (ReplyReviewReply) {
+		option (google.api.http) = {
+		post: "/v1/review/reply"
+		body: "*"
+		};
+	}
+	rpc UpdateReview(UpdateReviewRequest) returns (UpdateReviewReply) {}  
+
+	rpc DeleteReview(DeleteReviewRequest) returns (DeleteReviewReply) {}
+	//c端根据评论ID查询评价信息，包含评论ID、评分、评论内容等字段
+	rpc GetReview(GetReviewRequest) returns (GetReviewReply) {
+		option (google.api.http) = {
+			get: "/v1/reviews/{review_id}"
+		};
+	}
+	rpc ListReview(ListReviewRequest) returns (ListReviewReply) {}
+}
+
+//创建评价的字段，
+message CreateReviewRequest {
+	int64 user_id = 1 [(validate.rules).int64 ={gt : 0}];
+	int64 order_id = 2 [(validate.rules).int64 ={gt : 0}];
+	int64 score = 3 [(validate.rules).int64 = {gte: 0, lte: 5}];
+	int64 service_score = 4 [(validate.rules).int64 = {in : [0, 1, 2, 3, 4, 5]}];
+	int64 express_score = 5 [(validate.rules).int64 = {in : [0, 1, 2, 3, 4, 5]}];
+	string comment = 6 [(validate.rules).string = {min_len: 0, max_len: 200}];
+	string pic_info = 7;
+	string video_info = 8;
+	bool anonymous = 9;
+}
+//创建评价的回复，包含新创建的评价ID
+message CreateReviewReply {
+	int64 review_id = 1;
+}
+
+message UpdateReviewRequest {}
+message UpdateReviewReply {}
+
+message DeleteReviewRequest {}
+message DeleteReviewReply {}
+
+message GetReviewRequest {
+	int64 review_id = 1 [(validate.rules).int64 = {gt: 0}];
+}
+message GetReviewReply {
+	int64 user_id = 1 [(validate.rules).int64 ={gt : 0}];
+	int64 order_id = 2 [(validate.rules).int64 ={gt : 0}];
+	int64 score = 3 [(validate.rules).int64 = {gte: 0, lte: 5}];
+	int64 service_score = 4 [(validate.rules).int64 = {in : [0, 1, 2, 3, 4, 5]}];
+	int64 express_score = 5 [(validate.rules).int64 = {in : [0, 1, 2, 3, 4, 5]}];
+	string comment = 6 [(validate.rules).string = {min_len: 0, max_len: 200}];
+	string pic_info = 7;
+	string video_info = 8;
+	bool anonymous = 9;
+}
+
+message ListReviewRequest {}
+message ListReviewReply {}
+message ReplyReviewRequest
+ {
+  int64 review_id=1 [(validate.rules).int64={gt:0}];
+  int64 store_id=2 [(validate.rules).int64={gt:0}];
+ string reply_content=3 [(validate.rules).string={min_len:1,max_len:200}];
+ string pic_info=4;
+ string video_info=5;
+}
+message ReplyReviewReply {
+   int64 reply_id=1;
+}
