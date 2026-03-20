@@ -1,0 +1,23 @@
+syntax = "proto3";
+package api.auth.v1;
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+option go_package = "review-service/api/business/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.business.v1";
+service Auth {
+    rpc AuditReview(AuditReviewRequest)returns(AuditReviewReply){
+        option (google.api.http) = {
+          post: "/o/v1/review"
+          body: "*"
+        };
+    }
+}
+message AuditReviewRequest {
+    int64 review_id=1 [(validate.rules).int64={gt:0}];
+    int64 store_id=2 [(validate.rules).int64={gt:0}];
+    string auth_content=3 [(validate.rules).string={min_len:1,max_len:200}];
+}
+message AuditReviewReply {
+     int64 audit =1;
+}
